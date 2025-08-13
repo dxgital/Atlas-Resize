@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PNG to JPG 1280x720</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --blue-light: #8ac0e8;
+      --blue-dark: #1d5d8a;
+      --white: #ffffff;
+      --yellow: #fee745;
+    }
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      background: var(--white);
+      color: var(--blue-dark);
+      padding: 20px;
+    }
+    h1{
+      margin-bottom: 10px;
+      color: var(--blue-dark);
+    }
+    .btn{
+      display:inline-block;
+      padding:8px 12px;
+      background: var(--blue-light);
+      color: var(--white);
+      border: 2px solid var(--blue-dark);
+      cursor:pointer;
+    }
+    input[type="file"]{ display:none; }
+  </style>
+</head>
+<body>
+  <h1>PNG to JPG 1280x720</h1>
+  <label class="btn">
+    Choose PNG(s)
+    <input id="fileInput" type="file" accept="image/png" multiple>
+  </label>
+
+  <script>
+    const TARGET_W = 1280;
+    const TARGET_H = 720;
+
+    document.getElementById('fileInput').addEventListener('change', e => {
+      const files = Array.from(e.target.files).filter(f => f.type === 'image/png');
+      if(files.length === 0) return;
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = TARGET_W;
+            canvas.height = TARGET_H;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, TARGET_W, TARGET_H); // stretch
+            canvas.toBlob(blob => {
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = file.name.replace(/\.[^/.]+$/, '') + "_1280x720.jpg";
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+            }, 'image/jpeg', 0.92);
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  </script>
+</body>
+</html>
